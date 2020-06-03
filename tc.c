@@ -59,18 +59,35 @@ void plot_outer_border(int lines, int columns)
 	}
 }
 
+void plot_inner_border(int lines, int columns)
+{
+	int half_cols = columns / 2;
+	locate(half_cols, 0);
+	plot_vt100_char(T_DOWN);
+	for (int i = 2; i < lines-1; i++)
+	{
+		locate(half_cols, i);
+		plot_vt100_char(VERT_LINE);
+	}
+	locate(half_cols, lines-1);
+	plot_vt100_char(T_UP);
+}
+
 
 int main(int argc, char **argv)
 {
 	struct winsize w = get_terminal_size();
-	if (w.ws_row < 24 || w.ws_col < 80)
+	int lines = w.ws_row;
+	int columns = w.ws_col;
+	if (lines < 24 || columns < 80)
 	{
 		printf("Terminal Height/Width must be greater than 80x24\n");
-		printf("But yours is only %ix%i\n", w.ws_col, w.ws_row);
+		printf("But yours is only %ix%i\n", columns, lines);
 		return 1;
 	}
 	clear();
-	plot_outer_border(w.ws_row, w.ws_col);
+	plot_outer_border(lines, columns);
+	plot_inner_border(lines, columns);
 	printf("\n");
 	return 0;
 }
