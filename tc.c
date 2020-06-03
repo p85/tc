@@ -52,6 +52,11 @@ void plot_outer_border(int lines, int columns)
 	plot_vt100_char(BOTTOM_LEFT);
 	locate(columns, lines-1);
 	plot_vt100_char(BOTTOM_RIGHT);
+	for (int i = 2; i < columns; i++)
+	{
+		locate(i, lines-1);
+		plot_vt100_char(HORIZ_LINE);
+	}
 }
 
 
@@ -65,6 +70,7 @@ int main(int argc, char **argv)
 		return 1;
 	}
 	clear();
-	plot_outer_border(w.ws_row, w.ws_col);	
+	plot_outer_border(w.ws_row, w.ws_col);
+	printf("\n");
 	return 0;
 }
