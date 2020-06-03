@@ -73,6 +73,21 @@ void plot_inner_border(int lines, int columns)
 	plot_vt100_char(T_UP);
 }
 
+void plot_right_horiz_border(int lines, int columns)
+{
+	int line_offset = lines / 6;
+	int half_cols = columns / 2;
+	locate(half_cols, line_offset);
+	plot_vt100_char(T_RIGHT);
+	for (int i = half_cols + 1; i < half_cols * 2; i++)
+	{
+		printf("%i", i);
+		locate(i, line_offset);
+		plot_vt100_char(HORIZ_LINE);
+	}
+	plot_vt100_char(T_LEFT);
+}
+
 
 int main(int argc, char **argv)
 {
@@ -88,6 +103,7 @@ int main(int argc, char **argv)
 	clear();
 	plot_outer_border(lines, columns);
 	plot_inner_border(lines, columns);
+	plot_right_horiz_border(lines, columns);
 	printf("\n");
 	return 0;
 }
