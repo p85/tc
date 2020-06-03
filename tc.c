@@ -2,6 +2,8 @@
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <string.h>
+#include <time.h>
+
 
 static const char PRE[] = "\x1b(0"; // Prefix, to enable special "Drawing Characters"
 static const char SUF[] = "\x1b(B"; // Disable given special "Drawing Characters"
@@ -27,6 +29,7 @@ static int cursor_position = 1;
 #define clear() printf("\033[H\033[J");
 #define locate(x, y) printf("\033[%d;%dH", (y), (x));
 #define plot_vt100_char(c) printf("%s%s%s", PRE, (c), SUF);
+
 
 struct winsize get_terminal_size()
 {
@@ -121,12 +124,71 @@ void plot_status_bar(const int lines, const int columns)
 		plot_vt100_char(HORIZ_LINE);
 	}
 	locate(half_cols, lines - 3);
-	plot_vt100_char(CROSSING);
+	plot_vt100_char(T_LEFT);
 }
 
 void print_status_bar_text(const int lines, const int columns)
 {
-	
+	// user
+	const char user[32];
+	getlogin_r(user, sizeof(user)-1);
+	locate(3, lines - 2);
+	printf("%s", user);
+	const time_t t = time(NULL);
+	struct tm tm = *localtime(&t);
+	// month
+	char month[3];
+	sprintf(month, "%d", tm.tm_mon + 1);
+	if (strlen(month) == 1)
+	{
+		char *tmp = strdup(month);
+		strcpy(month, "0");
+		strcat(month, tmp);
+		free(tmp);
+	}
+	// day
+	char day[3];
+	sprintf(day, "%d", tm.tm_mday);
+	if (strlen(day) == 1)
+	{
+		char *tmp = strdup(day);
+		strcpy(day, "0");
+		strcat(day, tmp);
+		free(tmp);
+	}
+	// hour
+	char hour[3];
+	sprintf(hour, "%d", tm.tm_hour);
+	if (strlen(hour) == 1)
+	{
+		char *tmp = strdup(hour);
+		strcpy(hour, "0");
+		strcat(hour, tmp);
+		free(tmp);
+	}
+	// minute
+	char minute[3];
+	sprintf(minute, "%d", tm.tm_min);
+	if (strlen(minute) == 1)
+	{
+		char *tmp = strdup(minute);
+		strcpy(minute, "0");
+		strcat(minute, tmp);
+		free(tmp);
+	}
+	// second
+	char second[3];
+	sprintf(second, "%d", tm.tm_sec);
+	if (strlen(second) == 1)
+	{
+		char *tmp = strdup(second);
+		strcpy(second, "0");
+		strcat(second, tmp);
+		free(tmp);
+	}
+
+	locate(strlen(user) + 4, lines - 2);
+	printf("%d-%s-%s %s:%s:%s", tm.tm_year + 1900, month, day, hour, minute, second);
 }
 
 
