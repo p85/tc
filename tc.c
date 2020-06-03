@@ -19,7 +19,6 @@ static const char T_DOWN[2] = {0x77};
 static const char VERT_LINE[2] = {0x78};
 
 
-#define VT100_COMPAT_MODE 0
 #define clear() printf("\033[H\033[J");
 #define locate(x, y) printf("\033[%d;%dH", (y), (x));
 #define plot_vt100_char(c) printf("%s%s%s", PRE, (c), SUF);
@@ -31,7 +30,7 @@ struct winsize get_terminal_size()
 	return w;
 }
 
-void plot_outer_border(int lines, int columns)
+void plot_outer_border(const int lines, const int columns)
 {
 	locate(1, 1);
 	plot_vt100_char(TOP_LEFT);
@@ -59,9 +58,9 @@ void plot_outer_border(int lines, int columns)
 	}
 }
 
-void plot_inner_border(int lines, int columns)
+void plot_inner_border(const int lines, const int columns)
 {
-	int half_cols = columns / 2;
+	const int half_cols = columns / 2;
 	locate(half_cols, 0);
 	plot_vt100_char(T_DOWN);
 	for (int i = 2; i < lines-1; i++)
@@ -73,27 +72,45 @@ void plot_inner_border(int lines, int columns)
 	plot_vt100_char(T_UP);
 }
 
-void plot_right_horiz_border(int lines, int columns)
+void plot_right_horiz_border(const int lines, const int columns)
 {
-	int line_offset = lines / 6;
-	int half_cols = columns / 2;
+	const int line_offset = lines / 6;
+	const int half_cols = columns / 2;
 	locate(half_cols, line_offset);
 	plot_vt100_char(T_RIGHT);
 	for (int i = half_cols + 1; i < half_cols * 2; i++)
 	{
-		printf("%i", i);
 		locate(i, line_offset);
 		plot_vt100_char(HORIZ_LINE);
 	}
 	plot_vt100_char(T_LEFT);
 }
 
+void print_logo(const int lines, const int columns)
+{
+	const int half_cols = (columns / 2) + (columns / 2 / 2);
+	const int max_line_offset = lines / 6;
+	const int start_at_line = 2;
+	const char app_name[] = "Telecommander v1.3";
+	locate(half_cols - strlen(app_name), start_at_line);
+	printf("%s", app_name);
+	const char author[] = "by archer";
+	locate(half_cols - strlen(author), start_at_line+1);
+	printf("%s", author);
+	const char usage[] = "Usage:";
+	locate(half_cols - strlen(usage), start_at_line+2);
+	printf("%s", usage);
+	const char hotkeys[] = "Use arrow keys";
+	locate(half_cols - strlen(hotkeys), start_at_line+3);
+	printf("%s", hotkeys);
+}
+
 
 int main(int argc, char **argv)
 {
 	struct winsize w = get_terminal_size();
-	int lines = w.ws_row;
-	int columns = w.ws_col;
+	const int lines = w.ws_row;
+	const int columns = w.ws_col;
 	if (lines < 24 || columns < 80)
 	{
 		printf("Terminal Height/Width must be greater than 80x24\n");
@@ -104,6 +121,7 @@ int main(int argc, char **argv)
 	plot_outer_border(lines, columns);
 	plot_inner_border(lines, columns);
 	plot_right_horiz_border(lines, columns);
+	print_logo(lines, columns);
 	printf("\n");
 	return 0;
 }
