@@ -18,6 +18,11 @@ static const char T_UP[2] = {0x76};
 static const char T_DOWN[2] = {0x77};
 static const char VERT_LINE[2] = {0x78};
 
+static int current_page = 1;
+static int max_pages = -1;
+static int files_per_page = -1;
+static int cursor_position = 1;
+
 
 #define clear() printf("\033[H\033[J");
 #define locate(x, y) printf("\033[%d;%dH", (y), (x));
@@ -105,23 +110,50 @@ void print_logo(const int lines, const int columns)
 	printf("%s", hotkeys);
 }
 
+void plot_status_bar(const int lines, const int columns)
+{
+	locate(1, lines - 3);
+	plot_vt100_char(T_RIGHT);
+	const int half_cols = columns / 2;
+	for (int i = 2; i < half_cols; i++)
+	{
+		locate(i, lines - 3);
+		plot_vt100_char(HORIZ_LINE);
+	}
+	locate(half_cols, lines - 3);
+	plot_vt100_char(CROSSING);
+}
+
+void print_status_bar_text(const int lines, const int columns)
+{
+	
+}
+
 
 int main(int argc, char **argv)
 {
-	struct winsize w = get_terminal_size();
-	const int lines = w.ws_row;
-	const int columns = w.ws_col;
-	if (lines < 24 || columns < 80)
+	struct winsize w;
+	for (;;)
 	{
-		printf("Terminal Height/Width must be greater than 80x24\n");
-		printf("But yours is only %ix%i\n", columns, lines);
-		return 1;
+		w = get_terminal_size();
+		const int lines = w.ws_row;
+		const int columns = w.ws_col;
+		if (lines < 24 || columns < 80)
+		{
+			printf("Terminal Height/Width must be greater than 80x24\n");
+			printf("But yours is only %ix%i\n", columns, lines);
+			return 1;
+		}
+		clear();
+		plot_outer_border(lines, columns);
+		plot_inner_border(lines, columns);
+		plot_right_horiz_border(lines, columns);
+		print_logo(lines, columns);
+		plot_status_bar(lines, columns);
+		print_status_bar_text(lines, columns);
+		fflush(stdout);
+		// sleep(1);
+		break;
 	}
-	clear();
-	plot_outer_border(lines, columns);
-	plot_inner_border(lines, columns);
-	plot_right_horiz_border(lines, columns);
-	print_logo(lines, columns);
-	printf("\n");
 	return 0;
 }
