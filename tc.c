@@ -3,6 +3,7 @@
 #include <sys/ioctl.h>
 #include <string.h>
 #include <time.h>
+#include <dirent.h>
 
 
 static const char PRE[] = "\x1b(0"; // Prefix, to enable special "Drawing Characters"
@@ -191,10 +192,33 @@ void print_status_bar_text(const int lines, const int columns)
 	printf("%d-%s-%s %s:%s:%s", tm.tm_year + 1900, month, day, hour, minute, second);
 }
 
+void create_file_list(char *files[100][32], int *size)
+{
+	DIR *d;
+	struct dirent *dir;
+	d = opendir(".");
+	int current_index = 0;
+	if (d)
+	{
+		while ((dir = readdir(d)) != NULL)
+		{
+			if (dir->d_name != ".." && dir->d_name != ".")
+			{
+				strcpy(files[current_index++], dir->d_name);
+			}
+		}
+		closedir(d);
+	}
+	free(dir);
+	*size = current_index - 1;
+}
+
 
 int main(int argc, char **argv)
 {
 	struct winsize w;
+	char *files[100][32];
+	int *total_files;
 	for (;;)
 	{
 		w = get_terminal_size();
@@ -213,8 +237,19 @@ int main(int argc, char **argv)
 		print_logo(lines, columns);
 		plot_status_bar(lines, columns);
 		print_status_bar_text(lines, columns);
+		// create the file list
+		create_file_list(files, total_files);
+		// printf("\n%s\n", files[0]);
+		// printf("\n%s\n", files[1]);
+		// printf("\n%s\n", files[2]);
+		// printf("\n%s\n", files[3]);
+		// printf("\n%s\n", files[4]);
+		// printf("\n%s\n", files[5]);
+		// printf("\n%s\n", files[6]);
+		// printf("\n%i\n", *total_files);
 		fflush(stdout);
 		// sleep(1);
+		printf("\n");
 		break;
 	}
 	return 0;
