@@ -191,6 +191,8 @@ void print_status_bar_text(const int lines, const int columns)
 
 	locate(strlen(user) + 4, lines - 2);
 	printf("%d-%s-%s %s:%s:%s", tm.tm_year + 1900, month, day, hour, minute, second);
+	// on page/max pages
+	printf(" %i/%i", current_page, max_pages);
 }
 
 void create_file_list(char *files[100][32], int *size)
@@ -203,7 +205,7 @@ void create_file_list(char *files[100][32], int *size)
 	{
 		while ((dir = readdir(d)) != NULL)
 		{
-			if (dir->d_name != ".." && dir->d_name != ".")
+			if (strcmp(dir->d_name, "..") != 0 && strcmp(dir->d_name, ".") != 0)
 			{
 				strcpy(files[current_index++], dir->d_name);
 			}
@@ -211,12 +213,16 @@ void create_file_list(char *files[100][32], int *size)
 		closedir(d);
 	}
 	free(dir);
-	*size = current_index - 1;
+	*size = current_index;
 }
 
 void print_file_list(const int lines, const int columns, char *files[100][32], int total_files)
 {
-
+	for (int i = 0; i < total_files; i++)
+	{
+		locate(3, i + 2);
+		printf("%s", files[i]);
+	}
 }
 
 
@@ -241,12 +247,15 @@ int main(int argc, char **argv)
 		plot_inner_border(lines, columns);
 		plot_right_horiz_border(lines, columns);
 		print_logo(lines, columns);
-		plot_status_bar(lines, columns);
-		print_status_bar_text(lines, columns);
+		// plot_status_bar(lines, columns);
+		// print_status_bar_text(lines, columns);
 		// create the file list
 		create_file_list(files, total_files);
+		files_per_page = (lines - 5) / *total_files;
+		max_pages = *total_files / files_per_page + 1;
+		plot_status_bar(lines, columns);
+		print_status_bar_text(lines, columns);
 		print_file_list(lines, columns, files, *total_files);
-		// printf("\n%s, %s\, total: %d\n", files[0], files[1], *total_files);
 		fflush(stdout);
 		// sleep(1);
 		printf("\n");
