@@ -116,7 +116,7 @@ void print_logo(const int lines, const int columns)
 	const char usage[] = "Usage:";
 	locate(half_cols - strlen(usage), start_at_line+2);
 	printf("%s", usage);
-	const char hotkeys[] = "Use arrow keys";
+	const char hotkeys[] = "W/S Up, Down";
 	locate(half_cols - strlen(hotkeys), start_at_line+3);
 	printf("%s", hotkeys);
 	const char hotkeys2[] = "q to quit";
@@ -230,7 +230,15 @@ void print_file_list(const int lines, const int columns, char *files[100][32], i
 	for (int i = 0; i < total_files; i++)
 	{
 		locate(3, i + 2);
-		printf("%s", files[i]);
+		if (i + 1 == cursor_position)
+		{
+			printf("\e[7;49;36m");
+		}
+		else
+		{
+			printf("\e[7;49;34m");
+		}
+		printf(" %s ", files[i]);
 	}
 }
 
@@ -334,12 +342,29 @@ int main(int argc, char **argv)
 		if (kbhit())
 		{
 			int key = getch();
-			// printf("\nsome key pressed: %c\n", key);
-
+			printf("\n%i\n", files_per_page);
 			// q/Q pressed -> exit Program
 			if (key == 113 || key == 81)
 			{
 				exit(0);
+			}
+			// 115 83 Ss
+			else if (key == 115 || key == 83)
+			{
+				cursor_position = cursor_position + 1;
+				if (cursor_position > files_per_page)
+				{
+					cursor_position = 1;
+				}
+			}
+			// 119 87 Ww
+			else if (key = 119 || key == 87)
+			{
+				cursor_position = cursor_position - 1;
+				if (cursor_position < 1)
+				{
+				 	cursor_position = 1;
+				}
 			}
 		}
 	}
