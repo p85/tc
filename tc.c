@@ -285,13 +285,26 @@ int getch()
 	}
 }
 
+void set_colors(const int lines, const int columns)
+{
+	clear();
+	printf("\e[7;49;34m");
+	for (int i = 0; i < columns; i++)
+	{
+		for (int ii = 0; ii < lines; ii++)
+		{
+			locate(i, ii);
+			printf(" ");
+		}
+	}
+}
+
 
 int main(int argc, char **argv)
 {
 	struct winsize w;
 	char *files[100][32];
 	int *total_files;
-	// signal(SIGINT, sigint_handler);
 	set_conio_terminal_mode();
 	for (;;)
 	{
@@ -304,7 +317,7 @@ int main(int argc, char **argv)
 			printf("But yours is only %ix%i\n", columns, lines);
 			return 1;
 		}
-		clear();
+		set_colors(lines, columns);
 		plot_outer_border(lines, columns);
 		plot_inner_border(lines, columns);
 		plot_right_horiz_border(lines, columns);
