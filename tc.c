@@ -1,11 +1,14 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
-#include <string.h>
 #include <time.h>
 #include <dirent.h>
 #include <signal.h>
+
+#include <stdlib.h>
+#include <string.h>
+#include <sys/select.h>
+#include <termios.h>
 
 
 static const char PRE[] = "\x1b(0"; // Prefix, to enable special "Drawing Characters"
@@ -27,6 +30,8 @@ static int current_page = 1;
 static int max_pages = -1;
 static int files_per_page = -1;
 static int cursor_position = 1;
+
+struct termios orig_termios;
 
 
 #define clear() printf("\033[H\033[J");
@@ -114,6 +119,9 @@ void print_logo(const int lines, const int columns)
 	const char hotkeys[] = "Use arrow keys";
 	locate(half_cols - strlen(hotkeys), start_at_line+3);
 	printf("%s", hotkeys);
+	const char hotkeys2[] = "q to quit";
+	locate(half_cols - strlen(hotkeys2), start_at_line+4);
+	printf("%s", hotkeys2);
 }
 
 void plot_status_bar(const int lines, const int columns)
@@ -226,14 +234,7 @@ void print_file_list(const int lines, const int columns, char *files[100][32], i
 	}
 }
 
-void sigint_handler(sig_t signal)
-{
-	// clear();
-	printf("%s", SUF);	
-	exit(0);
-}
-
-void calculate_files_per_page(int lines, int total_files)
+void calculate_files_per_page(int lines)
 {
 	files_per_page = lines - 5;
 }
@@ -243,13 +244,55 @@ void calculate_max_pages(int total_files)
 	max_pages = total_files / files_per_page + 1;
 }
 
+void terminate_program()
+{
+	// clear();
+	// Disable VT100 Char Mode, incase enabled
+	printf("%s", SUF);
+	tcsetattr(0, TCSANOW, &orig_termios);
+}
+
+void set_conio_terminal_mode()
+{
+	struct termios new_termios;
+	tcgetattr(0, &orig_termios);
+	memcpy(&new_termios, &orig_termios, sizeof(new_termios));
+	atexit(terminate_program);
+	cfmakeraw(&new_termios);
+	tcsetattr(0, TCSANOW, &new_termios);
+}
+
+int kbhit()
+{
+	struct timeval tv = { 1L, 0L };
+	fd_set fds;
+	FD_ZERO(&fds);
+	FD_SET(0, &fds);
+	return select(1, &fds, NULL, NULL, &tv);
+}
+
+int getch()
+{
+	int r;
+	unsigned char c;
+	if ((r = read(0, &c, sizeof(c))) < 0)
+	{
+		return r;
+	}
+	else
+	{
+		return c;
+	}
+}
+
 
 int main(int argc, char **argv)
 {
 	struct winsize w;
 	char *files[100][32];
 	int *total_files;
-	signal(SIGINT, sigint_handler);
+	// signal(SIGINT, sigint_handler);
+	set_conio_terminal_mode();
 	for (;;)
 	{
 		w = get_terminal_size();
@@ -268,15 +311,24 @@ int main(int argc, char **argv)
 		print_logo(lines, columns);
 		// create the file list
 		create_file_list(files, total_files);
-		calculate_files_per_page(lines, *total_files);
+		calculate_files_per_page(lines);
 		calculate_max_pages(*total_files);
 		plot_status_bar(lines, columns);
 		print_status_bar_text(lines, columns);
 		print_file_list(lines, columns, files, *total_files);
 		fflush(stdout);
-		// sleep(1);
-		printf("\n");
-		break;
+
+		if (kbhit())
+		{
+			int key = getch();
+			// printf("\nsome key pressed: %c\n", key);
+
+			// q/Q pressed -> exit Program
+			if (key == 113 || key == 81)
+			{
+				exit(0);
+			}
+		}
 	}
 	return 0;
 }
