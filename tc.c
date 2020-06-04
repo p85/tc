@@ -5,6 +5,7 @@
 #include <string.h>
 #include <time.h>
 #include <dirent.h>
+#include <signal.h>
 
 
 static const char PRE[] = "\x1b(0"; // Prefix, to enable special "Drawing Characters"
@@ -225,12 +226,20 @@ void print_file_list(const int lines, const int columns, char *files[100][32], i
 	}
 }
 
+void sigint_handler(sig_t signal)
+{
+	// clear();
+	printf("%s", SUF);	
+	exit(0);
+}
+
 
 int main(int argc, char **argv)
 {
 	struct winsize w;
 	char *files[100][32];
 	int *total_files;
+	signal(SIGINT, sigint_handler);
 	for (;;)
 	{
 		w = get_terminal_size();
