@@ -38,6 +38,9 @@ struct termios orig_termios;
 #define locate(x, y) printf("\033[%d;%dH", (y), (x));
 #define plot_vt100_char(c) printf("%s%s%s", PRE, (c), SUF);
 
+#define ACTIVE_COLOR "\e[7;49;36m"
+#define INACTIVE_COLOR "\e[7;49;34m"
+#define DEFAULT_COLOR INACTIVE_COLOR
 
 struct winsize get_terminal_size()
 {
@@ -232,11 +235,11 @@ void print_file_list(const int lines, const int columns, char *files[100][32], i
 		locate(3, i + 2);
 		if (i + 1 == cursor_position)
 		{
-			printf("\e[7;49;36m");
+			printf("%s", ACTIVE_COLOR);
 		}
 		else
 		{
-			printf("\e[7;49;34m");
+			printf("%s", INACTIVE_COLOR);
 		}
 		printf(" %s ", files[i]);
 	}
@@ -254,7 +257,7 @@ void calculate_max_pages(int total_files)
 
 void terminate_program()
 {
-	// clear();
+	clear();
 	// Disable VT100 Char Mode, incase enabled
 	printf("%s", SUF);
 	tcsetattr(0, TCSANOW, &orig_termios);
@@ -296,7 +299,7 @@ int getch()
 void set_colors(const int lines, const int columns)
 {
 	clear();
-	printf("\e[7;49;34m");
+	printf("%s", DEFAULT_COLOR);
 	for (int i = 0; i < columns; i++)
 	{
 		for (int ii = 0; ii < lines; ii++)
