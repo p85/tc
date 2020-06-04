@@ -233,6 +233,16 @@ void sigint_handler(sig_t signal)
 	exit(0);
 }
 
+void calculate_files_per_page(int lines, int total_files)
+{
+	files_per_page = lines - 5;
+}
+
+void calculate_max_pages(int total_files)
+{
+	max_pages = total_files / files_per_page + 1;
+}
+
 
 int main(int argc, char **argv)
 {
@@ -256,12 +266,10 @@ int main(int argc, char **argv)
 		plot_inner_border(lines, columns);
 		plot_right_horiz_border(lines, columns);
 		print_logo(lines, columns);
-		// plot_status_bar(lines, columns);
-		// print_status_bar_text(lines, columns);
 		// create the file list
 		create_file_list(files, total_files);
-		files_per_page = (lines - 5) / *total_files;
-		max_pages = *total_files / files_per_page + 1;
+		calculate_files_per_page(lines, *total_files);
+		calculate_max_pages(*total_files);
 		plot_status_bar(lines, columns);
 		print_status_bar_text(lines, columns);
 		print_file_list(lines, columns, files, *total_files);
