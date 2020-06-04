@@ -42,6 +42,10 @@ struct termios orig_termios;
 #define INACTIVE_COLOR "\e[7;49;34m"
 #define DEFAULT_COLOR INACTIVE_COLOR
 
+#define MAX_FILES 1024
+#define MAX_FILE_LENGTH 32
+
+
 struct winsize get_terminal_size()
 {
 	struct winsize w;
@@ -119,7 +123,7 @@ void print_logo(const int lines, const int columns)
 	const char usage[] = "Usage:";
 	locate(half_cols - strlen(usage), start_at_line+2);
 	printf("%s", usage);
-	const char hotkeys[] = "W/S Up, Down";
+	const char hotkeys[] = "w - up, s - down";
 	locate(half_cols - strlen(hotkeys), start_at_line+3);
 	printf("%s", hotkeys);
 	const char hotkeys2[] = "q to quit";
@@ -207,7 +211,7 @@ void print_status_bar_text(const int lines, const int columns)
 	printf(" %i/%i", current_page, max_pages);
 }
 
-void create_file_list(char *files[100][32], int *size)
+void create_file_list(char *files[MAX_FILES][MAX_FILE_LENGTH], int *size)
 {
 	DIR *d;
 	struct dirent *dir;
@@ -228,7 +232,7 @@ void create_file_list(char *files[100][32], int *size)
 	*size = current_index;
 }
 
-void print_file_list(const int lines, const int columns, char *files[100][32], int total_files)
+void print_file_list(const int lines, const int columns, char *files[MAX_FILES][MAX_FILE_LENGTH], int total_files)
 {
 	for (int i = 0; i < total_files; i++)
 	{
@@ -314,7 +318,7 @@ void set_colors(const int lines, const int columns)
 int main(int argc, char **argv)
 {
 	struct winsize w;
-	char *files[100][32];
+	char *files[MAX_FILES][MAX_FILE_LENGTH];
 	int *total_files;
 	set_conio_terminal_mode();
 	for (;;)
@@ -369,6 +373,7 @@ int main(int argc, char **argv)
 				 	cursor_position = 1;
 				}
 			}
+			
 		}
 	}
 	return 0;
