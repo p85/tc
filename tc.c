@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <string.h>
@@ -131,7 +132,7 @@ void plot_status_bar(const int lines, const int columns)
 void print_status_bar_text(const int lines, const int columns)
 {
 	// user
-	const char user[32];
+	char user[32];
 	getlogin_r(user, sizeof(user)-1);
 	locate(3, lines - 2);
 	printf("%s", user);
@@ -213,6 +214,11 @@ void create_file_list(char *files[100][32], int *size)
 	*size = current_index - 1;
 }
 
+void print_file_list(const int lines, const int columns, char *files[100][32], int total_files)
+{
+
+}
+
 
 int main(int argc, char **argv)
 {
@@ -239,14 +245,8 @@ int main(int argc, char **argv)
 		print_status_bar_text(lines, columns);
 		// create the file list
 		create_file_list(files, total_files);
-		// printf("\n%s\n", files[0]);
-		// printf("\n%s\n", files[1]);
-		// printf("\n%s\n", files[2]);
-		// printf("\n%s\n", files[3]);
-		// printf("\n%s\n", files[4]);
-		// printf("\n%s\n", files[5]);
-		// printf("\n%s\n", files[6]);
-		// printf("\n%i\n", *total_files);
+		print_file_list(lines, columns, files, *total_files);
+		// printf("\n%s, %s\, total: %d\n", files[0], files[1], *total_files);
 		fflush(stdout);
 		// sleep(1);
 		printf("\n");
