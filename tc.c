@@ -4,12 +4,11 @@
 #include <time.h>
 #include <dirent.h>
 #include <signal.h>
-
 #include <stdlib.h>
 #include <string.h>
 #include <sys/select.h>
 #include <termios.h>
-
+#include <ctype.h>
 
 static const char PRE[] = "\x1b(0"; // Prefix, to enable special "Drawing Characters"
 static const char SUF[] = "\x1b(B"; // Disable given special "Drawing Characters"
@@ -126,7 +125,7 @@ void print_logo(const int lines, const int columns)
 	const char hotkeys[] = "w - up, s - down";
 	locate(half_cols - strlen(hotkeys), start_at_line+3);
 	printf("%s", hotkeys);
-	const char hotkeys2[] = "q to quit";
+	const char hotkeys2[] = "o - open, q - uit";
 	locate(half_cols - strlen(hotkeys2), start_at_line+4);
 	printf("%s", hotkeys2);
 }
@@ -314,9 +313,10 @@ void set_colors(const int lines, const int columns)
 	}
 }
 
-void process_input(char *files[MAX_FILES][MAX_FILE_LENGTH])
+void process_input(char *files[MAX_FILES][MAX_FILE_LENGTH], const int lines, const int columns)
 {
 	int key = getch();
+	char filename[MAX_FILE_LENGTH];
 	switch (key)
 	{
 		case 113: // q
@@ -339,17 +339,66 @@ void process_input(char *files[MAX_FILES][MAX_FILE_LENGTH])
                         	cursor_position = 1;
                         }
                         break;
-                case 111:; // o
-                case 79:; // O
-                        // TODO: open file and display
-                        char filename[MAX_FILE_LENGTH];
+                case 111: // o
+                case 79: // O
                         strcpy(filename, files[cursor_position - 1]);
-                        printf("\n%s\n", filename);
+                        preview_file(filename, lines, columns);
                         sleep(3);
                         break;
                 default:
                 	break;
 	}
+}
+
+void preview_file(char filename[MAX_FILE_LENGTH], const int lines, const int columns)
+{
+        int line_offset = lines / 6 + 1;
+        const int max_lines = lines - 3 - line_offset;
+        const int col_offset = columns / 2 + 2;
+        locate(col_offset, line_offset++);
+	FILE *f = fopen(filename, "r");
+	if (f == NULL)
+	{
+		printf("could not open file %s", filename);
+		fflush(stdout);
+		sleep(2);
+		return;
+	}
+	int c = fgetc(f);
+	char preview[200];
+	int len = 0;
+	while (c != EOF)
+	{
+		preview[len++] = c;
+		if (!isascii(c) && !isspace(c))
+		{
+			printf("cannot open binary files");
+			fclose(f);
+			fflush(stdout);
+			sleep(2);
+			return;
+		}
+		c = fgetc(f);
+	}
+	fclose(f);
+	preview[len++] = "\0";
+	for (int i = 0; i < strlen(preview); i++)
+	{
+		if (preview[i] == '\n')
+		{
+			locate(col_offset, line_offset++);
+		}
+		else
+		{
+			printf("%c", preview[i]);
+		}
+		if (i > max_lines)
+		{
+			break;
+		}
+	}
+	fflush(stdout);
+	sleep(2);
 }
 
 
@@ -386,7 +435,7 @@ int main(int argc, char **argv)
 
 		if (kbhit())
 		{
-			process_input(files);
+			process_input(files, lines, columns);
 		}
 	}
 	return 0;
