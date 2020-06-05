@@ -349,29 +349,37 @@ int main(int argc, char **argv)
 		if (kbhit())
 		{
 			int key = getch();
-			printf("\n%i\n", files_per_page);
-			// q/Q pressed -> exit Program
-			if (key == 113 || key == 81)
-			{
-				exit(0);
-			}
-			// 115 83 Ss
-			else if (key == 115 || key == 83)
-			{
-				cursor_position = cursor_position + 1;
-				if (cursor_position > files_per_page)
-				{
-					cursor_position = 1;
-				}
-			}
-			// 119 87 Ww
-			else if (key = 119 || key == 87)
-			{
-				cursor_position = cursor_position - 1;
-				if (cursor_position < 1)
-				{
-				 	cursor_position = 1;
-				}
+			switch (key) {
+				case 113: // q
+				case 81: // Q
+					exit(0);
+					break;
+				case 115: // s
+				case 83: // S
+					cursor_position = cursor_position + 1;
+					if (cursor_position > files_per_page)
+					{
+						cursor_position = 1;
+					}
+					break;
+				case 119: // w
+				case 87: // W
+					cursor_position = cursor_position - 1;
+					if (cursor_position < 1)
+					{
+						cursor_position = 1;
+					}
+					break;
+				case 111: // o
+				case 79: // O
+					// TODO: open file and display
+					printf("\n%s\n", files[cursor_position - 1]);
+					sleep(3);
+					break;
+				default:
+					((void)0);
+
+
 			}
 			
 		}
