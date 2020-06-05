@@ -323,32 +323,32 @@ void process_input(char *files[MAX_FILES][MAX_FILE_LENGTH])
 		case 81: // Q
 			exit(0);
 			break;
-                case 115: // s                                                                                                                                                                                                
-                case 83: // S                                                                                                                                                                                                 
-                        cursor_position = cursor_position + 1;                                                                                                                                                                
-                        if (cursor_position > files_per_page)                                                                                                                                                                 
-                        {                                                                                                                                                                                                     
-                        	cursor_position = 1;                                                                                                                                                                          
-                        }                                                                                                                                                                                                     
-                        break;                                                                                                                                                                                                
-                case 119: // w                                                                                                                                                                                                
-                case 87: // W                                                                                                                                                                                                 
-                        cursor_position = cursor_position - 1;                                                                                                                                                                
-                        if (cursor_position < 1)                                                                                                                                                                              
-                        {                                                                                                                                                                                                     
-                        	cursor_position = 1;                                                                                                                                                                          
-                        }                                                                                                                                                                                                     
-                        break;                                                                                                                                                                                                
-                case 111:; // o                                                                                                                                                                                               
-                case 79:; // O                                                                                                                                                                                                
-                        // TODO: open file and display                                                                                                                                                                        
-                        char filename[MAX_FILE_LENGTH];                                                                                                                                                                       
-                        strcpy(filename, files[cursor_position - 1]);                                                                                                                                                         
-                        printf("\n%s\n", filename);                                                                                                                                                                           
-                        sleep(3);                                                                                                                                                                                             
-                        break;                                                                                                                                                                                                
-                default:                                                                                                                                                                                                      
-                	break;            
+                case 115: // s
+		case 83: // S
+			cursor_position = cursor_position + 1;
+                        if (cursor_position > files_per_page)
+                        {
+                        	cursor_position = 1;
+                        }
+                        break;
+                case 119: // w
+                case 87: // W
+                        cursor_position = cursor_position - 1;
+                        if (cursor_position < 1)
+                        {
+                        	cursor_position = 1;
+                        }
+                        break;
+                case 111:; // o
+                case 79:; // O
+                        // TODO: open file and display
+                        char filename[MAX_FILE_LENGTH];
+                        strcpy(filename, files[cursor_position - 1]);
+                        printf("\n%s\n", filename);
+                        sleep(3);
+                        break;
+                default:
+                	break;
 	}
 }
 
