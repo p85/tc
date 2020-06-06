@@ -9,6 +9,8 @@
 #include <sys/select.h>
 #include <termios.h>
 #include <ctype.h>
+#include <stdbool.h>
+
 
 static const char PRE[] = "\x1b(0"; // Prefix, to enable special "Drawing Characters"
 static const char SUF[] = "\x1b(B"; // Disable given special "Drawing Characters"
@@ -30,7 +32,7 @@ static int max_pages = -1;
 static int files_per_page = -1;
 static int cursor_position = 1;
 
-struct termios orig_termios;
+static struct termios orig_termios;
 
 
 #define clear() printf("\033[H\033[J");
@@ -43,6 +45,8 @@ struct termios orig_termios;
 
 #define MAX_FILES 1024
 #define MAX_FILE_LENGTH 32
+
+typedef enum { CLEAR_SCREEN, DO_NOT_CLEAR_SCREEN } clear_screen_option;
 
 
 struct winsize get_terminal_size()
@@ -299,7 +303,7 @@ int getch()
 	}
 }
 
-void set_colors(const int lines, const int columns)
+void set_colors(const int lines, const int columns, clear_screen_option clear_screen_opt)
 {
 	clear();
 	printf("%s", DEFAULT_COLOR);
@@ -308,7 +312,7 @@ void set_colors(const int lines, const int columns)
 		for (int ii = 0; ii < lines; ii++)
 		{
 			locate(i, ii);
-			printf(" ");
+			printf("%s", clear_screen_opt == CLEAR_SCREEN ? " " : "");
 		}
 	}
 }
@@ -342,8 +346,8 @@ void process_input(char *files[MAX_FILES][MAX_FILE_LENGTH], const int lines, con
                 case 111: // o
                 case 79: // O
                         strcpy(filename, files[cursor_position - 1]);
+			clear_preview_area(lines, columns);
                         preview_file(filename, lines, columns);
-                        sleep(3);
                         break;
                 default:
                 	break;
@@ -361,7 +365,6 @@ void preview_file(char filename[MAX_FILE_LENGTH], const int lines, const int col
 	{
 		printf("could not open file %s", filename);
 		fflush(stdout);
-		sleep(2);
 		return;
 	}
 	int c = fgetc(f);
@@ -375,7 +378,6 @@ void preview_file(char filename[MAX_FILE_LENGTH], const int lines, const int col
 			printf("cannot open binary files");
 			fclose(f);
 			fflush(stdout);
-			sleep(2);
 			return;
 		}
 		c = fgetc(f);
@@ -398,28 +400,62 @@ void preview_file(char filename[MAX_FILE_LENGTH], const int lines, const int col
 		}
 	}
 	fflush(stdout);
-	sleep(2);
+}
+
+void clear_file_list(const int lines, const int columns)
+{
+	const int half_cols = columns / 2;
+	const int max_lines = lines - 3;
+	printf("%s", DEFAULT_COLOR);
+	for (int i = 2; i < max_lines; i++)
+	{
+		for (int ii = 2; ii < half_cols; ii++)
+		{
+			locate(ii, i);
+			printf(" ");
+		}
+	}
+	fflush(stdout);
+}
+
+void clear_preview_area(const int lines, const int columns)
+{
+        const int line_offset = lines / 6 + 1;
+        const int max_lines = lines - 1;
+        const int col_offset = columns / 2 + 2;
+	printf("%s", DEFAULT_COLOR);
+	for (int i = line_offset; i < max_lines; i++)
+	{
+		for (int ii = col_offset; ii < columns - 1; ii++)
+		{
+			locate(ii, i);
+			printf(" ");
+		}
+	}
+	fflush(stdout);
 }
 
 
 int main(int argc, char **argv)
 {
-	struct winsize w;
+	struct winsize w = get_terminal_size();
+	int lines = w.ws_row;
+	int columns = w.ws_col;
 	char *files[MAX_FILES][MAX_FILE_LENGTH];
 	int *total_files;
 	set_conio_terminal_mode();
+	set_colors(lines, columns, CLEAR_SCREEN);
 	for (;;)
 	{
 		w = get_terminal_size();
-		const int lines = w.ws_row;
-		const int columns = w.ws_col;
+		lines = w.ws_row;
+		columns = w.ws_col;
 		if (lines < 24 || columns < 80)
 		{
 			printf("Terminal Height/Width must be greater than 80x24\n");
 			printf("But yours is only %ix%i\n", columns, lines);
 			return 1;
 		}
-		set_colors(lines, columns);
 		plot_outer_border(lines, columns);
 		plot_inner_border(lines, columns);
 		plot_right_horiz_border(lines, columns);
