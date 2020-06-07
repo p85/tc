@@ -101,7 +101,7 @@ void plot_inner_border(const int lines, const int columns)
 
 void plot_right_horiz_border(const int lines, const int columns)
 {
-	const int line_offset = lines / 6;
+	const int line_offset = 6; // lines / 6;
 	const int half_cols = columns / 2;
 	locate(half_cols, line_offset);
 	plot_vt100_char(T_RIGHT);
@@ -119,22 +119,16 @@ void print_logo(const int lines, const int columns)
 	const int max_line_offset = lines / 6;
 	const int start_at_line = 2;
 	const char app_name[] = "Telecommander v1.3";
-	locate(half_cols / 2 + strlen(app_name), start_at_line);
+	locate(half_cols / 2 + strlen(app_name) - 5, start_at_line);
 	printf("%s", app_name);
-	const char author[] = "by archer";
-	locate(half_cols / 2 + strlen(author) + 9, start_at_line+1);
-	printf("%s", author);
-	const char usage[] = "Usage:";
-	locate(half_cols / 2 + strlen(usage) + 12, start_at_line+2);
-	printf("%s", usage);
-	const char hotkeys[] = "w - up, s - down";
-	locate(half_cols / 2 + strlen(hotkeys) + 2, start_at_line+3);
+	const char hotkeys[] = "w up, s down";
+	locate(half_cols / 2 + strlen(hotkeys) + 1, start_at_line + 1);
 	printf("%s", hotkeys);
-	const char hotkeys2[] = "o - open, q - quit";
-	locate(half_cols / 2 + strlen(hotkeys2), start_at_line+4);
+	const char hotkeys2[] = "o open, q quit";
+	locate(half_cols / 2 + strlen(hotkeys2) - 1, start_at_line + 2);
 	printf("%s", hotkeys2);
-	const char hotkeys3[] = ", - prev, . - next";
-	locate(half_cols / 2 + strlen(hotkeys3), start_at_line+5);
+	const char hotkeys3[] = ", prev, . next";
+	locate(half_cols / 2 + strlen(hotkeys3) - 1, start_at_line + 3);
 	printf("%s", hotkeys3);
 }
 
@@ -389,7 +383,7 @@ void process_input(char *files[MAX_FILES][MAX_FILE_LENGTH], const int lines, con
 
 void preview_file(char filename[MAX_FILE_LENGTH], const int lines, const int columns)
 {
-        int line_offset = lines / 6 + 1;
+        int line_offset = 7; // lines / 6 + 1;
         const int max_lines = lines - 3 - line_offset;
         const int col_offset = columns / 2 + 2;
         locate(col_offset, line_offset++);
