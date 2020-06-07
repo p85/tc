@@ -356,7 +356,7 @@ void process_input(char *files[MAX_FILES][MAX_FILE_LENGTH], const int lines, con
                         break;
                 case 111: // o
                 case 79: // O
-                        strcpy(filename, files[cursor_position - 1]);
+                        strcpy(filename, files[current_page * cursor_position - 1]);
 			clear_preview_area(lines, columns);
                         preview_file(filename, lines, columns);
                         break;
