@@ -332,6 +332,7 @@ void process_input(char *files[MAX_FILES][MAX_FILE_LENGTH], const int lines, con
 {
 	int key = getch();
 	char filename[MAX_FILE_LENGTH];
+	int file_index;
 	switch (key)
 	{
 		case 113: // q
@@ -356,7 +357,8 @@ void process_input(char *files[MAX_FILES][MAX_FILE_LENGTH], const int lines, con
                         break;
                 case 111: // o
                 case 79: // O
-                        strcpy(filename, files[current_page * cursor_position - 1]);
+			file_index = current_page == 1 ? cursor_position - 1 : current_page * files_per_page - files_per_page + cursor_position - 1;
+                        strcpy(filename, files[file_index]);
 			clear_preview_area(lines, columns);
                         preview_file(filename, lines, columns);
                         break;
