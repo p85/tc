@@ -1,5 +1,7 @@
 # telecommander
 
+![telecommander](screenshots/tc.png)
+
 A re-implementation of telecommander (tc) as seen on telehack.
 
 Heavily inspired by Norton Commander.
