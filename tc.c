@@ -31,6 +31,7 @@ static int current_page = 1;
 static int max_pages = -1;
 static int files_per_page = -1;
 static int cursor_position = 1;
+static int error_exit = 0;
 
 static struct termios orig_termios;
 
@@ -275,7 +276,10 @@ void calculate_max_pages(int total_files)
 
 void terminate_program()
 {
-	clear();
+	if (error_exit == 0)
+	{
+		clear();
+	}
 	// Disable VT100 Char Mode, incase enabled
 	printf("%s", SUF);
 	tcsetattr(0, TCSANOW, &orig_termios);
@@ -464,12 +468,25 @@ void clear_preview_area(const int lines, const int columns)
 	fflush(stdout);
 }
 
+void check_terminal_size(const int lines, const int columns)
+{
+	if (lines < 24 || columns < 80)
+	{
+		locate(1, 1);
+		printf("Terminal Height/Width must be greater than 80x24\n");
+		printf("But yours is only %ix%i :(\n", columns, lines);
+		error_exit = 1;
+		exit(1);
+	}
+}
+
 
 int main(int argc, char **argv)
 {
 	struct winsize w = get_terminal_size();
 	int lines = w.ws_row;
 	int columns = w.ws_col;
+	check_terminal_size(lines, columns);
 	char *files[MAX_FILES][MAX_FILE_LENGTH];
 	int *total_files;
 	set_conio_terminal_mode();
@@ -479,12 +496,7 @@ int main(int argc, char **argv)
 		w = get_terminal_size();
 		lines = w.ws_row;
 		columns = w.ws_col;
-		if (lines < 24 || columns < 80)
-		{
-			printf("Terminal Height/Width must be greater than 80x24\n");
-			printf("But yours is only %ix%i\n", columns, lines);
-			return 1;
-		}
+		check_terminal_size(lines, columns);
 		plot_outer_border(lines, columns);
 		plot_inner_border(lines, columns);
 		plot_right_horiz_border(lines, columns);
