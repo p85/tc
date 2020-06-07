@@ -383,8 +383,8 @@ void process_input(char *files[MAX_FILES][MAX_FILE_LENGTH], const int lines, con
 
 void preview_file(char filename[MAX_FILE_LENGTH], const int lines, const int columns)
 {
-        int line_offset = 7; // lines / 6 + 1;
-        const int max_lines = lines - 3 - line_offset;
+        int line_offset = 7;
+        const int max_lines = lines - 3; // - line_offset;
         const int col_offset = columns / 2 + 2;
         locate(col_offset, line_offset++);
 	FILE *f = fopen(filename, "r");
@@ -411,17 +411,23 @@ void preview_file(char filename[MAX_FILE_LENGTH], const int lines, const int col
 	}
 	fclose(f);
 	preview[len++] = "\0";
+	int current_line = 1;
 	for (int i = 0; i < strlen(preview); i++)
 	{
 		if (preview[i] == '\n')
 		{
 			locate(col_offset, line_offset++);
+			current_line++;
+		}
+		else if (preview[i] == '\0')
+		{
+			break;
 		}
 		else
 		{
 			printf("%c", preview[i]);
 		}
-		if (i > max_lines)
+		if (current_line > max_lines)
 		{
 			break;
 		}
