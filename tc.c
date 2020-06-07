@@ -118,22 +118,22 @@ void print_logo(const int lines, const int columns)
 	const int max_line_offset = lines / 6;
 	const int start_at_line = 2;
 	const char app_name[] = "Telecommander v1.3";
-	locate(half_cols - strlen(app_name), start_at_line);
+	locate(half_cols / 2 + strlen(app_name), start_at_line);
 	printf("%s", app_name);
 	const char author[] = "by archer";
-	locate(half_cols - strlen(author), start_at_line+1);
+	locate(half_cols / 2 + strlen(author) + 9, start_at_line+1);
 	printf("%s", author);
 	const char usage[] = "Usage:";
-	locate(half_cols - strlen(usage), start_at_line+2);
+	locate(half_cols / 2 + strlen(usage) + 12, start_at_line+2);
 	printf("%s", usage);
 	const char hotkeys[] = "w - up, s - down";
-	locate(half_cols - strlen(hotkeys), start_at_line+3);
+	locate(half_cols / 2 + strlen(hotkeys) + 2, start_at_line+3);
 	printf("%s", hotkeys);
 	const char hotkeys2[] = "o - open, q - quit";
-	locate(half_cols - strlen(hotkeys2), start_at_line+4);
+	locate(half_cols / 2 + strlen(hotkeys2), start_at_line+4);
 	printf("%s", hotkeys2);
 	const char hotkeys3[] = ", - prev, . - next";
-	locate(half_cols - strlen(hotkeys3), start_at_line+5);
+	locate(half_cols / 2 + strlen(hotkeys3), start_at_line+5);
 	printf("%s", hotkeys3);
 }
 
