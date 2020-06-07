@@ -327,7 +327,7 @@ void set_colors(const int lines, const int columns, clear_screen_option clear_sc
 
 void clear_preview_area(const int lines, const int columns)
 {
-        const int line_offset = lines / 6 + 1;
+        const int line_offset = lines / 6 - 2;
         const int max_lines = lines - 1;
         const int col_offset = columns / 2 + 2;
         printf("%s", DEFAULT_COLOR);
