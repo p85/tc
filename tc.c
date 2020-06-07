@@ -240,14 +240,17 @@ void create_file_list(char *files[MAX_FILES][MAX_FILE_LENGTH], int *size)
 
 void print_file_list(const int lines, const int columns, char *files[MAX_FILES][MAX_FILE_LENGTH], int total_files)
 {
-	for (int i = 0; i < total_files; i++)
+	int from = (current_page - 1 ) * files_per_page;
+	int to = from + files_per_page + 1;
+	int zero_index = 0;
+	for (int i = from; i < to; i++)
 	{
-		if (i > files_per_page)
+		if (i > to)
 		{
 			break;
 		}
-		locate(3, i + 2);
-		if (i + 1 == cursor_position)
+		locate(3, zero_index + 2);
+		if (zero_index + 1 == cursor_position)
 		{
 			printf("%s", ACTIVE_COLOR);
 		}
@@ -256,6 +259,7 @@ void print_file_list(const int lines, const int columns, char *files[MAX_FILES][
 			printf("%s", INACTIVE_COLOR);
 		}
 		printf(" %s ", files[i]);
+		zero_index++;
 	}
 }
 
@@ -356,6 +360,22 @@ void process_input(char *files[MAX_FILES][MAX_FILE_LENGTH], const int lines, con
 			clear_preview_area(lines, columns);
                         preview_file(filename, lines, columns);
                         break;
+		case 46: // .
+			if (current_page < max_pages)
+			{
+				current_page++;
+				clear_file_list(lines, columns);
+				cursor_position = 1;
+			}
+			break;
+		case 44: // ,
+			if (current_page > 1)
+			{
+				current_page--;
+				clear_file_list(lines, columns);
+				cursor_position = 1;
+			}
+			break;
                 default:
                 	break;
 	}
