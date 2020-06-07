@@ -119,16 +119,17 @@ void print_logo(const int lines, const int columns)
 	const int max_line_offset = lines / 6;
 	const int start_at_line = 2;
 	const char app_name[] = "Telecommander v1.3";
-	locate(half_cols / 2 + strlen(app_name) - 5, start_at_line);
+	const int col_offset = columns / 2 + 2;
+	locate(col_offset, start_at_line);
 	printf("%s", app_name);
 	const char hotkeys[] = "w up, s down";
-	locate(half_cols / 2 + strlen(hotkeys) + 1, start_at_line + 1);
+	locate(col_offset, start_at_line + 1);
 	printf("%s", hotkeys);
 	const char hotkeys2[] = "o open, q quit";
-	locate(half_cols / 2 + strlen(hotkeys2) - 1, start_at_line + 2);
+	locate(col_offset, start_at_line + 2);
 	printf("%s", hotkeys2);
 	const char hotkeys3[] = ", prev, . next";
-	locate(half_cols / 2 + strlen(hotkeys3) - 1, start_at_line + 3);
+	locate(col_offset, start_at_line + 3);
 	printf("%s", hotkeys3);
 }
 
@@ -326,6 +327,93 @@ void set_colors(const int lines, const int columns, clear_screen_option clear_sc
 	}
 }
 
+void clear_preview_area(const int lines, const int columns)
+{
+        const int line_offset = lines / 6 + 1;
+        const int max_lines = lines - 1;
+        const int col_offset = columns / 2 + 2;
+        printf("%s", DEFAULT_COLOR);
+        for (int i = line_offset; i < max_lines; i++)
+        {
+                for (int ii = col_offset; ii < columns - 1; ii++)
+                {
+                        locate(ii, i);
+                        printf(" ");
+                }
+        }
+        fflush(stdout);
+}
+
+void clear_file_list(const int lines, const int columns)
+{
+        const int half_cols = columns / 2;
+        const int max_lines = lines - 3;
+        printf("%s", DEFAULT_COLOR);
+        for (int i = 2; i < max_lines; i++)
+        {
+                for (int ii = 2; ii < half_cols; ii++)
+                {
+                        locate(ii, i);
+                        printf(" ");
+                }
+        }
+        fflush(stdout);
+}
+
+void preview_file(char filename[MAX_FILE_LENGTH], const int lines, const int columns)
+{
+        int line_offset = 7;
+        const int max_lines = lines - 3; // - line_offset;
+        const int col_offset = columns / 2 + 2;
+        locate(col_offset, line_offset++);
+        FILE *f = fopen(filename, "r");
+        if (f == NULL)
+        {
+                printf("could not open file %s", filename);
+                fflush(stdout);
+                return;
+        }
+        int c = fgetc(f);
+        char preview[200];
+        int len = 0;
+        while (c != EOF)
+        {
+                preview[len++] = c;
+                if (!isascii(c) && !isspace(c))
+                {
+                        printf("cannot open binary files");
+                        fclose(f);
+                        fflush(stdout);
+                        return;
+                }
+                c = fgetc(f);
+        }
+        fclose(f);
+        preview[len++] = 0x00;
+        int current_line = 1;
+        for (int i = 0; i < strlen(preview); i++)
+        {
+                if (preview[i] == '\n')
+                {
+                        locate(col_offset, line_offset++);
+                        current_line++;
+                }
+                else if (preview[i] == '\0')
+                {
+                        break;
+                }
+                else
+                {
+                        printf("%c", preview[i]);
+                }
+                if (current_line > max_lines)
+                {
+                        break;
+                }
+        }
+        fflush(stdout);
+}
+
 void process_input(char *files[MAX_FILES][MAX_FILE_LENGTH], const int lines, const int columns)
 {
 	int key = getch();
@@ -379,93 +467,6 @@ void process_input(char *files[MAX_FILES][MAX_FILE_LENGTH], const int lines, con
                 default:
                 	break;
 	}
-}
-
-void preview_file(char filename[MAX_FILE_LENGTH], const int lines, const int columns)
-{
-        int line_offset = 7;
-        const int max_lines = lines - 3; // - line_offset;
-        const int col_offset = columns / 2 + 2;
-        locate(col_offset, line_offset++);
-	FILE *f = fopen(filename, "r");
-	if (f == NULL)
-	{
-		printf("could not open file %s", filename);
-		fflush(stdout);
-		return;
-	}
-	int c = fgetc(f);
-	char preview[200];
-	int len = 0;
-	while (c != EOF)
-	{
-		preview[len++] = c;
-		if (!isascii(c) && !isspace(c))
-		{
-			printf("cannot open binary files");
-			fclose(f);
-			fflush(stdout);
-			return;
-		}
-		c = fgetc(f);
-	}
-	fclose(f);
-	preview[len++] = "\0";
-	int current_line = 1;
-	for (int i = 0; i < strlen(preview); i++)
-	{
-		if (preview[i] == '\n')
-		{
-			locate(col_offset, line_offset++);
-			current_line++;
-		}
-		else if (preview[i] == '\0')
-		{
-			break;
-		}
-		else
-		{
-			printf("%c", preview[i]);
-		}
-		if (current_line > max_lines)
-		{
-			break;
-		}
-	}
-	fflush(stdout);
-}
-
-void clear_file_list(const int lines, const int columns)
-{
-	const int half_cols = columns / 2;
-	const int max_lines = lines - 3;
-	printf("%s", DEFAULT_COLOR);
-	for (int i = 2; i < max_lines; i++)
-	{
-		for (int ii = 2; ii < half_cols; ii++)
-		{
-			locate(ii, i);
-			printf(" ");
-		}
-	}
-	fflush(stdout);
-}
-
-void clear_preview_area(const int lines, const int columns)
-{
-        const int line_offset = lines / 6 + 1;
-        const int max_lines = lines - 1;
-        const int col_offset = columns / 2 + 2;
-	printf("%s", DEFAULT_COLOR);
-	for (int i = line_offset; i < max_lines; i++)
-	{
-		for (int ii = col_offset; ii < columns - 1; ii++)
-		{
-			locate(ii, i);
-			printf(" ");
-		}
-	}
-	fflush(stdout);
 }
 
 void check_terminal_size(const int lines, const int columns)
