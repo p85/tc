@@ -16,3 +16,7 @@ make
 
 `./tc`
 
+### Notes
+
+* does not need UTF-8 to print Drawing Box Characters
+
