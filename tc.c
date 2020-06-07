@@ -129,9 +129,12 @@ void print_logo(const int lines, const int columns)
 	const char hotkeys[] = "w - up, s - down";
 	locate(half_cols - strlen(hotkeys), start_at_line+3);
 	printf("%s", hotkeys);
-	const char hotkeys2[] = "o - open, q - uit";
+	const char hotkeys2[] = "o - open, q - quit";
 	locate(half_cols - strlen(hotkeys2), start_at_line+4);
 	printf("%s", hotkeys2);
+	const char hotkeys3[] = ", - prev, . - next";
+	locate(half_cols - strlen(hotkeys3), start_at_line+5);
+	printf("%s", hotkeys3);
 }
 
 void plot_status_bar(const int lines, const int columns)
@@ -239,6 +242,10 @@ void print_file_list(const int lines, const int columns, char *files[MAX_FILES][
 {
 	for (int i = 0; i < total_files; i++)
 	{
+		if (i > files_per_page)
+		{
+			break;
+		}
 		locate(3, i + 2);
 		if (i + 1 == cursor_position)
 		{
@@ -254,7 +261,7 @@ void print_file_list(const int lines, const int columns, char *files[MAX_FILES][
 
 void calculate_files_per_page(int lines)
 {
-	files_per_page = lines - 5;
+	files_per_page = lines - 6;
 }
 
 void calculate_max_pages(int total_files)
@@ -330,7 +337,7 @@ void process_input(char *files[MAX_FILES][MAX_FILE_LENGTH], const int lines, con
                 case 115: // s
 		case 83: // S
 			cursor_position = cursor_position + 1;
-                        if (cursor_position > files_per_page)
+                        if (cursor_position > files_per_page + 1)
                         {
                         	cursor_position = 1;
                         }
