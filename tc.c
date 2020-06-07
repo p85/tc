@@ -113,24 +113,22 @@ void plot_right_horiz_border(const int lines, const int columns)
 	plot_vt100_char(T_LEFT);
 }
 
-void print_logo(const int lines, const int columns)
+void print_logo(const int columns)
 {
-	const int half_cols = (columns / 2) + (columns / 2 / 2);
-	const int max_line_offset = lines / 6;
 	const int start_at_line = 2;
-	const char app_name[] = "Telecommander v1.3";
 	const int col_offset = columns / 2 + 2;
+	const char app_name[] = "Telecommander v1.3";
+	const char nav_vert_keys[] = "w up, s down";
+	const char other_keys[] = "o open, q quit";
+	const char nav_pagination_keys[] = ", prev, . next";
 	locate(col_offset, start_at_line);
 	printf("%s", app_name);
-	const char hotkeys[] = "w up, s down";
 	locate(col_offset, start_at_line + 1);
-	printf("%s", hotkeys);
-	const char hotkeys2[] = "o open, q quit";
+	printf("%s", nav_vert_keys);
 	locate(col_offset, start_at_line + 2);
-	printf("%s", hotkeys2);
-	const char hotkeys3[] = ", prev, . next";
+	printf("%s", other_keys);
 	locate(col_offset, start_at_line + 3);
-	printf("%s", hotkeys3);
+	printf("%s", nav_pagination_keys);
 }
 
 void plot_status_bar(const int lines, const int columns)
@@ -501,7 +499,7 @@ int main(int argc, char **argv)
 		plot_outer_border(lines, columns);
 		plot_inner_border(lines, columns);
 		plot_right_horiz_border(lines, columns);
-		print_logo(lines, columns);
+		print_logo(columns);
 		// create the file list
 		create_file_list(files, total_files);
 		calculate_files_per_page(lines);
