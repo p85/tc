@@ -1,1 +1,3 @@
 tc
+*.txt
+create_files.sh
